@@ -83,6 +83,7 @@
 	    <source-file src="src/ios/CDVInAppBrowser.m" />
         <header-file src="src/ios/CDVInAppBrowserUIDelegate.h" />
         <source-file src="src/ios/CDVInAppBrowserUIDelegate.m" />
+        <source-file src="src/ios/CDVInAppBrowserNavigationController.m" />
 
 	    <framework src="CoreGraphics.framework" />
     </platform>

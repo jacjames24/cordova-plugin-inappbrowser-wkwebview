@@ -22,6 +22,8 @@
 #import <Cordova/CDVScreenOrientationDelegate.h>
 #import "CDVInAppBrowserUIDelegate.h"
 
+#define    STATUSBAR_HEIGHT 20.0
+
 @class CDVInAppBrowserViewController;
 
 @interface CDVInAppBrowser : CDVPlugin {
