@@ -108,4 +108,6 @@ typedef void(^JsSuccessBlock)(NSString* result);
 
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 
+-(void) changeToolBarColor;
+
 @end

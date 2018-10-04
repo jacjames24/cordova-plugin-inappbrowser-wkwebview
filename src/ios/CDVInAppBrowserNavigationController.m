@@ -22,7 +22,6 @@ UIToolbar* bgToolbar;
     bgToolbar.barStyle = UIBarStyleDefault;
     [bgToolbar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:bgToolbar];
-    [self changeToolBarColor];
     
     [super viewDidLoad];
 }
