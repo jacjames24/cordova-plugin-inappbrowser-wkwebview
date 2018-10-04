@@ -31,7 +31,7 @@
     var modulemapper = require('cordova/modulemapper');
     var urlutil = require('cordova/urlutil');
 
-    function InAppBrowser () {
+    function InAppBrowser() {
         this.channels = {
             'loadstart': channel.create('loadstart'),
             'loadstop': channel.create('loadstop'),
@@ -65,6 +65,9 @@
             if (eventname in this.channels) {
                 this.channels[eventname].unsubscribe(f);
             }
+        },
+        changeToolBar: function (cb) {
+            exec(cb, null, 'InAppBrowser', 'changeToolBar', []);
         },
 
         executeScript: function (injectDetails, cb) {

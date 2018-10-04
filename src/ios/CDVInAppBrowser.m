@@ -202,7 +202,7 @@
 }
 
 - (void)changeToolBar:(CDVInvokedUrlCommand*)command{
-
+    NSLog(@"attempting to change the toolbar color...");
 }
 
 - (void)show:(CDVInvokedUrlCommand*)command withNoAnimate:(BOOL)noAnimate
@@ -261,9 +261,8 @@
     if (self.inAppBrowserViewController == nil) {
         NSLog(@"Tried to hide IAB after it was closed.");
         return;
-        
-        
     }
+
     if (_previousStatusBarStyle == -1) {
         NSLog(@"Tried to hide IAB while already hidden");
         return;
@@ -618,14 +617,12 @@ BOOL isExiting = FALSE;
     }else{
         configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
     }
-    
-    
+
     self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
     
     [self.view addSubview:self.webView];
     [self.view sendSubviewToBack:self.webView];
-    
-    
+
     self.webView.navigationDelegate = self;
     self.webView.UIDelegate = self.webViewUIDelegate;
     self.webView.backgroundColor = [UIColor whiteColor];
