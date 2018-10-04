@@ -204,7 +204,18 @@
 
 - (void)changeToolBar:(CDVInvokedUrlCommand*)command{
     NSLog(@"attempting to change the toolbar color...");
-    [nav changeToolBarColor];
+
+    NSString* hexColor = [command.arguments objectAtIndex:0];
+    NSString* style = [command.arguments objectAtIndex:1];
+    [nav changeToolBarColor:hexColor];
+
+    if ([style isEqualToString:@"light"]) {
+        self.inAppBrowserViewController.toolBarStyle = UIStatusBarStyleLightContent;
+    } else {
+        self.inAppBrowserViewController.toolBarStyle = UIStatusBarStyleDefault;
+    }
+
+    [self.inAppBrowserViewController setNeedsStatusBarAppearanceUpdate];
 }
 
 - (void)show:(CDVInvokedUrlCommand*)command withNoAnimate:(BOOL)noAnimate
@@ -893,10 +904,10 @@ BOOL isExiting = FALSE;
     }
 }
 
-- (UIStatusBarStyle)preferredStatusBarStyle
-{
-    return UIStatusBarStyleLightContent;
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    return [self toolBarStyle];
 }
+
 
 - (BOOL)prefersStatusBarHidden {
     return NO;

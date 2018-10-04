@@ -6,6 +6,7 @@
 @implementation CDVInAppBrowserNavigationController : UINavigationController
 
 UIToolbar* bgToolbar;
+NSInteger toolBarStyle = -1;
 
 - (void) dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion {
     if ( self.presentedViewController) {
@@ -22,12 +23,12 @@ UIToolbar* bgToolbar;
     bgToolbar.barStyle = UIBarStyleDefault;
     [bgToolbar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:bgToolbar];
-    
+
     [super viewDidLoad];
 }
 
--(void) changeToolBarColor {
-    bgToolbar.barTintColor = [self colorFromHexString: @"#139e5d"];
+-(void) changeToolBarColor:(NSString*)hexColor {
+    bgToolbar.barTintColor = [self colorFromHexString: hexColor];
 }
 
 - (CGRect) invertFrameIfNeeded:(CGRect)rect {

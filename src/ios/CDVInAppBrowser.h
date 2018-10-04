@@ -93,6 +93,7 @@ typedef void(^JsSuccessBlock)(NSString* result);
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 @property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
+@property (nonatomic) NSInteger toolBarStyle;
 
 - (void)close;
 - (void)navigateTo:(NSURL*)url;
@@ -108,6 +109,6 @@ typedef void(^JsSuccessBlock)(NSString* result);
 
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 
--(void) changeToolBarColor;
+-(void) changeToolBarColor:(NSString*)hexColor;
 
 @end

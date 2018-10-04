@@ -66,8 +66,8 @@
                 this.channels[eventname].unsubscribe(f);
             }
         },
-        changeToolBar: function (cb) {
-            exec(cb, null, 'InAppBrowser', 'changeToolBar', []);
+        changeToolBar: function (hexColor, tbStyle, cb) {
+            exec(cb, null, 'InAppBrowser', 'changeToolBar', [hexColor, tbStyle]);
         },
 
         executeScript: function (injectDetails, cb) {
