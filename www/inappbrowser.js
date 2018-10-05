@@ -36,6 +36,7 @@
             'loadstart': channel.create('loadstart'),
             'loadstop': channel.create('loadstop'),
             'loaderror': channel.create('loaderror'),
+            'urlchanged': channel.create('urlchanged'),
             'exit': channel.create('exit'),
             'customscheme': channel.create('customscheme')
         };

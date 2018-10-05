@@ -147,7 +147,9 @@
             userAgent = [userAgent stringByAppendingString: appendUserAgent];
         }
         self.inAppBrowserViewController = [[CDVInAppBrowserViewController alloc] initWithUserAgent:userAgent prevUserAgent:[self.commandDelegate userAgent] browserOptions: browserOptions];
+
         self.inAppBrowserViewController.navigationDelegate = self;
+        [self.inAppBrowserViewController.webView addObserver:self forKeyPath:@"URL" options:NSKeyValueObservingOptionNew context:nil];
 
         if ([self.viewController conformsToProtocol:@protocol(CDVScreenOrientationDelegate)]) {
             self.inAppBrowserViewController.orientationDelegate = (UIViewController <CDVScreenOrientationDelegate>*)self.viewController;
@@ -569,6 +571,16 @@
     _previousStatusBarStyle = -1; // this value was reset before reapplying it. caused statusbar to stay black on ios7
 }
 
+- (void) observeValueForKeyPath:(NSString *)keyPath
+                       ofObject:(id)object
+                         change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                        context:(void *)context {
+    if ([keyPath isEqualToString:@"URL"]) {
+        NSString *url = self.inAppBrowserViewController.webView.URL.absoluteString;
+        NSLog(@"url is %@", url);
+    }
+}
+
 @end //CDVInAppBrowser
 
 #pragma mark CDVInAppBrowserViewController
@@ -942,18 +954,8 @@ BOOL isExiting = FALSE;
         [CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
             _userAgentLockToken = lockToken;
             [CDVUserAgentUtil setUserAgent:_userAgent lockToken:lockToken];
-            [weakSelf.webView addObserver:weakSelf forKeyPath:@"URL" options:NSKeyValueObservingOptionNew context:nil];
             [weakSelf.webView loadRequest:request];
         }];
-    }
-}
-
-- (void) observeValueForKeyPath:(NSString *)keyPath
-                       ofObject:(id)object
-                         change:(NSDictionary<NSKeyValueChangeKey,id> *)change
-                        context:(void *)context {
-    if ([keyPath isEqualToString:@"URL"]) {
-        NSLog(@"url is %@", self.webView.URL);
     }
 }
 
