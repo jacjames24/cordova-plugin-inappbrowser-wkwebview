@@ -72,7 +72,7 @@ typedef void(^JsSuccessBlock)(NSString* result);
 
 @end
 
-@interface CDVInAppBrowserViewController : UIViewController <CDVScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate,WKScriptMessageHandler>{
+@interface CDVInAppBrowserViewController: UIViewController <CDVScreenOrientationDelegate, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler> {
     @private
     NSString* _userAgent;
     NSString* _prevUserAgent;
@@ -109,6 +109,6 @@ typedef void(^JsSuccessBlock)(NSString* result);
 
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 
--(void) changeToolBarColor:(NSString*)hexColor;
+- (void)changeToolBarColor:(NSString*)hexColor;
 
 @end
