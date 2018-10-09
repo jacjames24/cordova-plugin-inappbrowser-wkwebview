@@ -910,6 +910,8 @@ BOOL isExiting = FALSE;
 - (void)viewDidLoad
 {
     viewRenderedAtLeastOnce = FALSE;
+    [self registerForKeyboardNotifications];
+
     [super viewDidLoad];
 }
 
@@ -922,10 +924,52 @@ BOOL isExiting = FALSE;
     }
 }
 
+- (void) registerForKeyboardNotifications {
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver:self
+           selector:@selector(keyboardDidShow:)
+               name:UIKeyboardDidShowNotification
+             object:nil];
+
+    [nc addObserver:self
+           selector:@selector(keyboardDidHide:)
+               name:UIKeyboardDidHideNotification
+             object:nil];
+}
+
 - (UIStatusBarStyle)preferredStatusBarStyle {
     return [self toolBarStyle];
 }
 
+- (void)keyboardDidShow:(NSNotification *)notification
+{
+    NSLog(@"keyboard was shown");
+
+    NSDictionary* info = [notification userInfo];
+    CGSize kbSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
+
+    UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
+    self.webView.scrollView.contentInset = contentInsets;
+    self.webView.scrollView.scrollIndicatorInsets = contentInsets;
+}
+
+- (void)keyboardDidHide:(NSNotification *)notification
+{
+    NSLog(@"keyboard was hidden");
+    NSDictionary *info = [notification userInfo];
+    NSNumber *number = [info objectForKey:UIKeyboardAnimationDurationUserInfoKey];
+    double duration = [number doubleValue];
+
+    [UIView animateWithDuration:duration
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseInOut
+                     animations:^{
+                         UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+                         self.webView.scrollView.contentInset = contentInsets;
+                         self.webView.scrollView.scrollIndicatorInsets = contentInsets;
+                     }
+                     completion:^(BOOL finished){ }];
+}
 
 - (BOOL)prefersStatusBarHidden {
     return NO;
