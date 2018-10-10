@@ -25,19 +25,17 @@ import android.provider.Browser;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -558,77 +556,7 @@ public class InAppBrowser extends CordovaPlugin {
         openWindowHidden = false;
         mediaPlaybackRequiresUserGesture = false;
 
-        if (features != null) {
-            String show = features.get(LOCATION);
-            if (show != null) {
-                showLocationBar = show.equals("yes") ? true : false;
-            }
-            if(showLocationBar) {
-                String hideNavigation = features.get(HIDE_NAVIGATION);
-                String hideUrl = features.get(HIDE_URL);
-                if(hideNavigation != null) hideNavigationButtons = hideNavigation.equals("yes") ? true : false;
-                if(hideUrl != null) hideUrlBar = hideUrl.equals("yes") ? true : false;
-            }
-            String zoom = features.get(ZOOM);
-            if (zoom != null) {
-                showZoomControls = zoom.equals("yes") ? true : false;
-            }
-            String hidden = features.get(HIDDEN);
-            if (hidden != null) {
-                openWindowHidden = hidden.equals("yes") ? true : false;
-            }
-            String hardwareBack = features.get(HARDWARE_BACK_BUTTON);
-            if (hardwareBack != null) {
-                hadwareBackButton = hardwareBack.equals("yes") ? true : false;
-            } else {
-                hadwareBackButton = DEFAULT_HARDWARE_BACK;
-            }
-            String mediaPlayback = features.get(MEDIA_PLAYBACK_REQUIRES_USER_ACTION);
-            if (mediaPlayback != null) {
-                mediaPlaybackRequiresUserGesture = mediaPlayback.equals("yes") ? true : false;
-            }
-            String cache = features.get(CLEAR_ALL_CACHE);
-            if (cache != null) {
-                clearAllCache = cache.equals("yes") ? true : false;
-            } else {
-                cache = features.get(CLEAR_SESSION_CACHE);
-                if (cache != null) {
-                    clearSessionCache = cache.equals("yes") ? true : false;
-                }
-            }
-            String shouldPause = features.get(SHOULD_PAUSE);
-            if (shouldPause != null) {
-                shouldPauseInAppBrowser = shouldPause.equals("yes") ? true : false;
-            }
-            String wideViewPort = features.get(USER_WIDE_VIEW_PORT);
-            if (wideViewPort != null ) {
-                useWideViewPort = wideViewPort.equals("yes") ? true : false;
-            }
-            String closeButtonCaptionSet = features.get(CLOSE_BUTTON_CAPTION);
-            if (closeButtonCaptionSet != null) {
-                closeButtonCaption = closeButtonCaptionSet;
-            }
-            String closeButtonColorSet = features.get(CLOSE_BUTTON_COLOR);
-            if (closeButtonColorSet != null) {
-                closeButtonColor = closeButtonColorSet;
-            }
-            String toolbarColorSet = features.get(TOOLBAR_COLOR);
-            if (toolbarColorSet != null) {
-                toolbarColor = android.graphics.Color.parseColor(toolbarColorSet);
-            }
-            String navigationButtonColorSet = features.get(NAVIGATION_COLOR);
-            if (navigationButtonColorSet != null) {
-                navigationButtonColor = navigationButtonColorSet;
-            }
-            String showFooterSet = features.get(FOOTER);
-            if (showFooterSet != null) {
-                showFooter = showFooterSet.equals("yes") ? true : false;
-            }
-            String footerColorSet = features.get(FOOTER_COLOR);
-            if (footerColorSet != null) {
-                footerColor = footerColorSet;
-            }
-        }
+        getIABSettings(features);
 
         final CordovaWebView thatWebView = this.webView;
 
@@ -878,27 +806,8 @@ public class InAppBrowser extends CordovaPlugin {
                     }
 
                 });
-                WebViewClient client = new InAppBrowserClient(thatWebView, edittext);
-                inAppWebView.setWebViewClient(client);
-                WebSettings settings = inAppWebView.getSettings();
-                settings.setJavaScriptEnabled(true);
-                settings.setJavaScriptCanOpenWindowsAutomatically(true);
-                settings.setBuiltInZoomControls(showZoomControls);
-                settings.setPluginState(android.webkit.WebSettings.PluginState.ON);
 
-                if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    settings.setMediaPlaybackRequiresUserGesture(mediaPlaybackRequiresUserGesture);
-                }
-
-                String overrideUserAgent = preferences.getString("OverrideUserAgent", null);
-                String appendUserAgent = preferences.getString("AppendUserAgent", null);
-
-                if (overrideUserAgent != null) {
-                    settings.setUserAgentString(overrideUserAgent);
-                }
-                if (appendUserAgent != null) {
-                    settings.setUserAgentString(settings.getUserAgentString() + appendUserAgent);
-                }
+                WebSettings settings = createWebViewClientSettings(thatWebView);
 
                 //Toggle whether this is enabled or not!
                 Bundle appSettings = cordova.getActivity().getIntent().getExtras();
@@ -952,23 +861,127 @@ public class InAppBrowser extends CordovaPlugin {
                     webViewLayout.addView(footer);
                 }
 
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(dialog.getWindow().getAttributes());
-                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-                lp.height = WindowManager.LayoutParams.MATCH_PARENT;
-
-                dialog.setContentView(main);
-                dialog.show();
-                dialog.getWindow().setAttributes(lp);
-                // the goal of openhidden is to load the url and not display it
-                // Show() needs to be called to cause the URL to be loaded
-                if(openWindowHidden) {
-                    dialog.hide();
-                }
+                showWebViewDialog(main);
             }
         };
         this.cordova.getActivity().runOnUiThread(runnable);
         return "";
+    }
+
+    private void showWebViewDialog(LinearLayout main) {
+        LayoutParams lp = new LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = LayoutParams.MATCH_PARENT;
+        lp.height = LayoutParams.WRAP_CONTENT;
+
+        dialog.setContentView(main);
+        dialog.show();
+        dialog.getWindow().setAttributes(lp);
+        // the goal of openhidden is to load the url and not display it
+        // Show() needs to be called to cause the URL to be loaded
+        if(openWindowHidden) {
+            dialog.hide();
+        }
+    }
+
+    @NonNull
+    private WebSettings createWebViewClientSettings(CordovaWebView thatWebView) {
+        WebViewClient client = new InAppBrowserClient(thatWebView, edittext);
+        inAppWebView.setWebViewClient(client);
+        WebSettings settings = inAppWebView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
+        settings.setBuiltInZoomControls(showZoomControls);
+        settings.setPluginState(WebSettings.PluginState.ON);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            settings.setMediaPlaybackRequiresUserGesture(mediaPlaybackRequiresUserGesture);
+        }
+
+        String overrideUserAgent = preferences.getString("OverrideUserAgent", null);
+        String appendUserAgent = preferences.getString("AppendUserAgent", null);
+
+        if (overrideUserAgent != null) {
+            settings.setUserAgentString(overrideUserAgent);
+        }
+        if (appendUserAgent != null) {
+            settings.setUserAgentString(settings.getUserAgentString() + appendUserAgent);
+        }
+        return settings;
+    }
+
+    private void getIABSettings(HashMap<String, String> features) {
+        if (features != null) {
+            String show = features.get(LOCATION);
+            if (show != null) {
+                showLocationBar = show.equals("yes") ? true : false;
+            }
+            if(showLocationBar) {
+                String hideNavigation = features.get(HIDE_NAVIGATION);
+                String hideUrl = features.get(HIDE_URL);
+                if(hideNavigation != null) hideNavigationButtons = hideNavigation.equals("yes") ? true : false;
+                if(hideUrl != null) hideUrlBar = hideUrl.equals("yes") ? true : false;
+            }
+            String zoom = features.get(ZOOM);
+            if (zoom != null) {
+                showZoomControls = zoom.equals("yes") ? true : false;
+            }
+            String hidden = features.get(HIDDEN);
+            if (hidden != null) {
+                openWindowHidden = hidden.equals("yes") ? true : false;
+            }
+            String hardwareBack = features.get(HARDWARE_BACK_BUTTON);
+            if (hardwareBack != null) {
+                hadwareBackButton = hardwareBack.equals("yes") ? true : false;
+            } else {
+                hadwareBackButton = DEFAULT_HARDWARE_BACK;
+            }
+            String mediaPlayback = features.get(MEDIA_PLAYBACK_REQUIRES_USER_ACTION);
+            if (mediaPlayback != null) {
+                mediaPlaybackRequiresUserGesture = mediaPlayback.equals("yes") ? true : false;
+            }
+            String cache = features.get(CLEAR_ALL_CACHE);
+            if (cache != null) {
+                clearAllCache = cache.equals("yes") ? true : false;
+            } else {
+                cache = features.get(CLEAR_SESSION_CACHE);
+                if (cache != null) {
+                    clearSessionCache = cache.equals("yes") ? true : false;
+                }
+            }
+            String shouldPause = features.get(SHOULD_PAUSE);
+            if (shouldPause != null) {
+                shouldPauseInAppBrowser = shouldPause.equals("yes") ? true : false;
+            }
+            String wideViewPort = features.get(USER_WIDE_VIEW_PORT);
+            if (wideViewPort != null ) {
+                useWideViewPort = wideViewPort.equals("yes") ? true : false;
+            }
+            String closeButtonCaptionSet = features.get(CLOSE_BUTTON_CAPTION);
+            if (closeButtonCaptionSet != null) {
+                closeButtonCaption = closeButtonCaptionSet;
+            }
+            String closeButtonColorSet = features.get(CLOSE_BUTTON_COLOR);
+            if (closeButtonColorSet != null) {
+                closeButtonColor = closeButtonColorSet;
+            }
+            String toolbarColorSet = features.get(TOOLBAR_COLOR);
+            if (toolbarColorSet != null) {
+                toolbarColor = Color.parseColor(toolbarColorSet);
+            }
+            String navigationButtonColorSet = features.get(NAVIGATION_COLOR);
+            if (navigationButtonColorSet != null) {
+                navigationButtonColor = navigationButtonColorSet;
+            }
+            String showFooterSet = features.get(FOOTER);
+            if (showFooterSet != null) {
+                showFooter = showFooterSet.equals("yes") ? true : false;
+            }
+            String footerColorSet = features.get(FOOTER_COLOR);
+            if (footerColorSet != null) {
+                footerColor = footerColorSet;
+            }
+        }
     }
 
     /**
