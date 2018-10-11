@@ -313,6 +313,14 @@ public class InAppBrowser extends CordovaPlugin {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
                         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                         window.setStatusBarColor(Color.parseColor(hexColor));
+
+                        View decor = window.getDecorView();
+                        if (style.equals("light")) {
+                            decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                        } else {
+                            decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                        }
+
                         Log.d(LOG_TAG, "after the command of changing the color of the tool bar");
                     }
                 }
