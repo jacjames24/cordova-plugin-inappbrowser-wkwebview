@@ -302,8 +302,7 @@ public class InAppBrowser extends CordovaPlugin {
         } else if (action.equals("changeToolBar")) {
             Log.d(LOG_TAG, "received the command for the changing the tool bar");
             String hexColor = args.getString(0);
-            String style =  args.getString(1);
-            Log.d(LOG_TAG, "the style passed: " + style);
+            String style = args.getString(1);
 
             this.cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
