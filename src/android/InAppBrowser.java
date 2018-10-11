@@ -87,6 +87,7 @@ public class InAppBrowser extends CordovaPlugin {
     private static final String LOCATION = "location";
     private static final String ZOOM = "zoom";
     private static final String HIDDEN = "hidden";
+    private static final String URL_CHANGED_EVENT = "urlchanged";
     private static final String LOAD_START_EVENT = "loadstart";
     private static final String LOAD_STOP_EVENT = "loadstop";
     private static final String LOAD_ERROR_EVENT = "loaderror";
@@ -135,6 +136,8 @@ public class InAppBrowser extends CordovaPlugin {
     private boolean showFooter = false;
     private String footerColor = "";
     private String[] allowedSchemes;
+
+    private String previousURL = "";
 
     /**
      * Executes the request and returns PluginResult.
@@ -1211,6 +1214,27 @@ public class InAppBrowser extends CordovaPlugin {
             }
 
             return false;
+        }
+
+        @Override
+        public void onLoadResource(WebView view, String url) {
+            String loadedUrl = inAppWebView.getUrl();
+
+            if (!previousURL.equals(loadedUrl)) {
+                Log.d(LOG_TAG,"loaded url " + loadedUrl);
+                previousURL = loadedUrl;
+
+                try {
+                    JSONObject obj = new JSONObject();
+                    obj.put("type", URL_CHANGED_EVENT);
+                    obj.put("url", loadedUrl);
+                    sendUpdate(obj, true);
+                } catch (JSONException ex) {
+                    LOG.e(LOG_TAG, "URI passed in has caused a JSON error.");
+                }
+            }
+
+            super.onLoadResource(view, url);
         }
 
         /*
