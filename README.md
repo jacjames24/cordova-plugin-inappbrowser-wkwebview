@@ -36,7 +36,6 @@ The plugin API is identical to [cordova-plugin-inappbrowser](https://github.com/
 ## Additional functions for this fork:
 - additional listeners for url changes (for SPA's). Usage:
 ```javascript
-```javascript
 App.browser.addEventListener('urlchanged', yourCallback);
 ```
 ```
