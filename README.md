@@ -34,8 +34,14 @@ Some advantages of using WKWebView over UIWebView include:
 The plugin API is identical to [cordova-plugin-inappbrowser](https://github.com/apache/cordova-plugin-inappbrowser).
 
 ## Additional functions for this fork:
-- additional listeners for url changes (for SPA's). Usage:
+- Additional listeners for url changes (for SPA's). Usage:
 ```javascript
-App.browser.addEventListener('urlchanged', yourCallback);
+InAppBrowser.addEventListener('urlchanged', yourCallback);
 ```
+
+- Changing status bar colors. For Android, IAB covers the status bar, so an adjustment has been made for the IAB size. For iOS, the status bar did not seem to work, so additional handlers were added. Usage:
+```javascript
+InAppBrowser.changeToolBar('#000000', 'light', () => { });
 ```
+- first argument: hex color
+- second argument: 'light' or 'dark' (for icon colors against the status bar backdrop);
