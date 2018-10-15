@@ -343,8 +343,8 @@
     } else {
                 [self evaluateJavaScript:_source completion:^(NSString* result){}];
     }
-        }];
-}
+        }];}
+
 
 //asynchronus helper for javascript evaluation
 - (void)evaluateJavaScript:(NSString *)script 
