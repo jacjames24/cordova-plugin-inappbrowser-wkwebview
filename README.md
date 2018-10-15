@@ -34,6 +34,8 @@ Some advantages of using WKWebView over UIWebView include:
 The plugin API is identical to [cordova-plugin-inappbrowser](https://github.com/apache/cordova-plugin-inappbrowser).
 
 ## Additional functions for this fork:
+- For android, added handling for pdf files (since PDF files are not readily supported in webview)
+
 - Additional listeners for url changes (for SPA's). Usage:
 ```javascript
 InAppBrowser.addEventListener('urlchanged', yourCallback);
@@ -45,5 +47,3 @@ InAppBrowser.changeToolBar('#000000', 'light', () => { });
 ```
 - first argument: hex color
 - second argument: 'light' or 'dark' (for icon colors against the status bar backdrop);
-
-- For android, added handling for pdf files (since PDF files are not readily supported in webview)
