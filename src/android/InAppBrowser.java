@@ -1298,6 +1298,15 @@ public class InAppBrowser extends CordovaPlugin {
             } catch (JSONException ex) {
                 LOG.d(LOG_TAG, "Should never happen");
             }
+
+            // we can add an observer here for adding support for pdf
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                String observerScript = "if(document.getElementById('app')){observerForJSInjection=new MutationObserver((mutations)=>{mutations.forEach((mutation)=>{if(mutation.type==='childList'){const links=document.querySelectorAll('a:not([href^="#"])');const viewer='https://docs.google.com/viewer?url=';if(links){Array.from(links).forEach(link=>{if(link.href.endsWith('.pdf')&&!link.href.includes('docs.google.com')){link.href=viewer+encodeURIComponent(link.href);console.log('adding support for pdf.')}})}}})});const config={childList:!0,subtree:!0};observerForJSInjection.observe(document.getElementById('app'),config)}"
+                @Override
+                public void run() {
+                    inAppWebView.evaluateJavascript(observerScript, null);
+                }
+            });
         }
 
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
