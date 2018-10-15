@@ -256,30 +256,30 @@ public class InAppBrowser extends CordovaPlugin {
             String jsWrapper;
             if (args.getBoolean(1)) {
                 jsWrapper = String.format(
-                        "(function(d) { var c = d.createElement('script'); c.src = %%s; c.onload = function() { prompt('', 'gap-iab://%s'); }; d.body.appendChild(c); })(document)",
+                        "(function(d) { var c = d.createElement('script'); c.src = %%s; c.onload = function() { prompt('', 'gap-iab://%s'); }; if (d.body) { d.body.appendChild(c); } })(document)",
                         callbackContext.getCallbackId());
             } else {
-                jsWrapper = "(function(d) { var c = d.createElement('script'); c.src = %s; d.body.appendChild(c); })(document)";
+                jsWrapper = "(function(d) { var c = d.createElement('script'); c.src = %s; if (d.body) { d.body.appendChild(c); } })(document)";
             }
             injectDeferredObject(args.getString(0), jsWrapper);
         } else if (action.equals("injectStyleCode")) {
             String jsWrapper;
             if (args.getBoolean(1)) {
                 jsWrapper = String.format(
-                        "(function(d) { var c = d.createElement('style'); c.innerHTML = %%s; d.body.appendChild(c); prompt('', 'gap-iab://%s');})(document)",
+                        "(function(d) { var c = d.createElement('style'); c.innerHTML = %%s; if (d.body) { d.body.appendChild(c); } prompt('', 'gap-iab://%s');})(document)",
                         callbackContext.getCallbackId());
             } else {
-                jsWrapper = "(function(d) { var c = d.createElement('style'); c.innerHTML = %s; d.body.appendChild(c); })(document)";
+                jsWrapper = "(function(d) { var c = d.createElement('style'); c.innerHTML = %s; if (d.body) { d.body.appendChild(c); } })(document)";
             }
             injectDeferredObject(args.getString(0), jsWrapper);
         } else if (action.equals("injectStyleFile")) {
             String jsWrapper;
             if (args.getBoolean(1)) {
                 jsWrapper = String.format(
-                        "(function(d) { var c = d.createElement('link'); c.rel='stylesheet'; c.type='text/css'; c.href = %%s; d.head.appendChild(c); prompt('', 'gap-iab://%s');})(document)",
+                        "(function(d) { var c = d.createElement('link'); c.rel='stylesheet'; c.type='text/css'; c.href = %%s; if (d.head) { d.head.appendChild(c); } prompt('', 'gap-iab://%s');})(document)",
                         callbackContext.getCallbackId());
             } else {
-                jsWrapper = "(function(d) { var c = d.createElement('link'); c.rel='stylesheet'; c.type='text/css'; c.href = %s; d.head.appendChild(c); })(document)";
+                jsWrapper = "(function(d) { var c = d.createElement('link'); c.rel='stylesheet'; c.type='text/css'; c.href = %s; if (d.head) { d.head.appendChild(c); } })(document)";
             }
             injectDeferredObject(args.getString(0), jsWrapper);
         } else if (action.equals("show")) {
@@ -1221,7 +1221,7 @@ public class InAppBrowser extends CordovaPlugin {
             String loadedUrl = inAppWebView.getUrl();
 
             if (!previousURL.equals(loadedUrl)) {
-                Log.d(LOG_TAG,"loaded url " + loadedUrl);
+                Log.d(LOG_TAG, "loaded url " + loadedUrl);
                 previousURL = loadedUrl;
 
                 try {
