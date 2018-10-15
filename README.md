@@ -45,3 +45,5 @@ InAppBrowser.changeToolBar('#000000', 'light', () => { });
 ```
 - first argument: hex color
 - second argument: 'light' or 'dark' (for icon colors against the status bar backdrop);
+
+- For android, added handling for pdf files (since PDF files are not readily supported in webview)
