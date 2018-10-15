@@ -1093,6 +1093,14 @@ BOOL isExiting = FALSE;
     
     [self.navigationDelegate webView:theWebView decidePolicyForNavigationAction:navigationAction.request];
     
+    if (!navigationAction.targetFrame) {
+        NSURL *url = navigationAction.request.URL;
+        UIApplication *app = [UIApplication sharedApplication];
+        if ([app canOpenURL:url]) {
+            [app openURL:url];
+        }
+    }
+
     decisionHandler(WKNavigationActionPolicyAllow);
     
 }
