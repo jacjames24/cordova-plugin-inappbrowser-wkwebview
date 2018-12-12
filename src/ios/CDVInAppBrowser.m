@@ -472,11 +472,11 @@
     CDVPluginResult* pluginResult = nil;
     BOOL keepCallback = NO;
     NSString* scriptCallbackId = nil;
-    
     NSDictionary* messageContent;
-    if([message.body isKindOfClass:[NSDictionary class]]){
+
+    if ([message.body isKindOfClass:[NSDictionary class]]){
         messageContent = (NSDictionary*) message.body;
-    }else{
+    } else{
         NSError* __autoreleasing error = nil;
         NSData* decodedResult = [NSJSONSerialization JSONObjectWithData:[message.body dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
         if (error == nil) {
@@ -485,9 +485,10 @@
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_JSON_EXCEPTION];
         }
     }
-    if(pluginResult != nil){
+
+    if (pluginResult != nil){
         scriptCallbackId = self.callbackId;
-    } else if([messageContent objectForKey:@"id"]){
+    } else if ([messageContent objectForKey:@"id"]){
         scriptCallbackId = messageContent[@"id"];
         if([messageContent objectForKey:@"d"]){
             NSString* scriptResult = messageContent[@"d"];
@@ -504,6 +505,11 @@
     } else {
         scriptCallbackId = self.callbackId;
         keepCallback = YES;
+
+        if (messageContent == nil) {
+            messageContent = [[NSDictionary alloc] init];
+        }
+
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                      messageAsDictionary:@{@"type":@"message", @"data":messageContent}];
     }
