@@ -406,13 +406,7 @@ public class InAppBrowser extends CordovaPlugin {
                 @SuppressLint("NewApi")
                 @Override
                 public void run() {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-                        // This action will have the side-effect of blurring the currently focused
-                        // element
-                        inAppWebView.loadUrl("javascript:" + finalScriptToInject);
-                    } else {
-                        inAppWebView.evaluateJavascript(finalScriptToInject, null);
-                    }
+                    inAppWebView.evaluateJavascript(finalScriptToInject, null);
                 }
             });
         } else {
@@ -640,8 +634,8 @@ public class InAppBrowser extends CordovaPlugin {
                         close.setColorFilter(android.graphics.Color.parseColor(closeButtonColor));
                     close.setImageDrawable(closeIcon);
                     close.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                    if (Build.VERSION.SDK_INT >= 16)
-                        close.getAdjustViewBounds();
+                    close.getAdjustViewBounds();
+
 
                     _close = close;
                 }
@@ -651,11 +645,7 @@ public class InAppBrowser extends CordovaPlugin {
                 closeLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 _close.setLayoutParams(closeLayoutParams);
 
-                if (Build.VERSION.SDK_INT >= 16)
-                    _close.setBackground(null);
-                else
-                    _close.setBackgroundDrawable(null);
-
+                _close.setBackground(null);
                 _close.setContentDescription("Close Button");
                 _close.setId(Integer.valueOf(id));
                 _close.setOnClickListener(new View.OnClickListener() {
@@ -719,15 +709,12 @@ public class InAppBrowser extends CordovaPlugin {
                 Drawable backIcon = activityRes.getDrawable(backResId);
                 if (navigationButtonColor != "")
                     back.setColorFilter(android.graphics.Color.parseColor(navigationButtonColor));
-                if (Build.VERSION.SDK_INT >= 16)
-                    back.setBackground(null);
-                else
-                    back.setBackgroundDrawable(null);
+                back.setBackground(null);
                 back.setImageDrawable(backIcon);
                 back.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 back.setPadding(0, this.dpToPixels(10), 0, this.dpToPixels(10));
-                if (Build.VERSION.SDK_INT >= 16)
-                    back.getAdjustViewBounds();
+                back.getAdjustViewBounds();
+
 
                 back.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -748,15 +735,12 @@ public class InAppBrowser extends CordovaPlugin {
                 Drawable fwdIcon = activityRes.getDrawable(fwdResId);
                 if (navigationButtonColor != "")
                     forward.setColorFilter(android.graphics.Color.parseColor(navigationButtonColor));
-                if (Build.VERSION.SDK_INT >= 16)
-                    forward.setBackground(null);
-                else
-                    forward.setBackgroundDrawable(null);
+                forward.setBackground(null);
                 forward.setImageDrawable(fwdIcon);
                 forward.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 forward.setPadding(0, this.dpToPixels(10), 0, this.dpToPixels(10));
-                if (Build.VERSION.SDK_INT >= 16)
-                    forward.getAdjustViewBounds();
+                forward.getAdjustViewBounds();
+
 
                 forward.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -952,10 +936,7 @@ public class InAppBrowser extends CordovaPlugin {
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setBuiltInZoomControls(showZoomControls);
         settings.setPluginState(WebSettings.PluginState.ON);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            settings.setMediaPlaybackRequiresUserGesture(mediaPlaybackRequiresUserGesture);
-        }
+        settings.setMediaPlaybackRequiresUserGesture(mediaPlaybackRequiresUserGesture);
 
         String overrideUserAgent = preferences.getString("OverrideUserAgent", null);
         String appendUserAgent = preferences.getString("AppendUserAgent", null);
