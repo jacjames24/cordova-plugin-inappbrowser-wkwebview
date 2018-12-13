@@ -35,7 +35,6 @@ public class InAppChromeClient extends WebChromeClient {
 
     private CordovaWebView webView;
     private String LOG_TAG = "InAppChromeClient";
-    private long MAX_QUOTA = 100 * 1024 * 1024;
 
     public InAppChromeClient(CordovaWebView webView) {
         super();
@@ -56,6 +55,7 @@ public class InAppChromeClient extends WebChromeClient {
             long totalUsedQuota, WebStorage.QuotaUpdater quotaUpdater)
     {
         LOG.d(LOG_TAG, "onExceededDatabaseQuota estimatedSize: %d  currentQuota: %d  totalUsedQuota: %d", estimatedSize, currentQuota, totalUsedQuota);
+        long MAX_QUOTA = 100 * 1024 * 1024;
         quotaUpdater.updateQuota(MAX_QUOTA);
     }
 
