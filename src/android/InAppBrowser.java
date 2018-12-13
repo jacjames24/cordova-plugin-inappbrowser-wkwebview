@@ -312,14 +312,14 @@ public class InAppBrowser extends CordovaPlugin {
                 public void run() {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         Window window = cordova.getActivity().getWindow();
-                        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-                        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                        window.clearFlags(LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                        window.addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                         window.setStatusBarColor(Color.parseColor(hexColor));
 
                         View decor = window.getDecorView();
                         if (style.equals("light")) {
                             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-                        } else {
+                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
                         }
 
@@ -694,14 +694,14 @@ public class InAppBrowser extends CordovaPlugin {
                 toolbar.setLayoutParams(
                         new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, this.dpToPixels(44)));
                 toolbar.setPadding(this.dpToPixels(2), this.dpToPixels(2), this.dpToPixels(2), this.dpToPixels(2));
-                toolbar.setHorizontalGravity(Gravity.LEFT);
+                toolbar.setHorizontalGravity(Gravity.START);
                 toolbar.setVerticalGravity(Gravity.TOP);
 
                 // Action Button Container layout
                 RelativeLayout actionButtonContainer = new RelativeLayout(cordova.getActivity());
                 actionButtonContainer.setLayoutParams(
                         new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-                actionButtonContainer.setHorizontalGravity(Gravity.LEFT);
+                actionButtonContainer.setHorizontalGravity(Gravity.START);
                 actionButtonContainer.setVerticalGravity(Gravity.CENTER_VERTICAL);
                 actionButtonContainer.setId(Integer.valueOf(1));
 
@@ -807,7 +807,7 @@ public class InAppBrowser extends CordovaPlugin {
                 footer.setLayoutParams(footerLayout);
                 if (closeButtonCaption != "")
                     footer.setPadding(this.dpToPixels(8), this.dpToPixels(8), this.dpToPixels(8), this.dpToPixels(8));
-                footer.setHorizontalGravity(Gravity.LEFT);
+                footer.setHorizontalGravity(Gravity.START);
                 footer.setVerticalGravity(Gravity.BOTTOM);
 
                 View footerClose = createCloseButton(7);
@@ -1178,9 +1178,9 @@ public class InAppBrowser extends CordovaPlugin {
                             }
                         }
                     }
-                    intent.setData(Uri.parse("sms:" + address));
+
+                    intent.setDataAndType(Uri.parse("sms:" + address), "vnd.android-dir/mms-sms");
                     intent.putExtra("address", address);
-                    intent.setType("vnd.android-dir/mms-sms");
                     cordova.getActivity().startActivity(intent);
                     return true;
                 } catch (android.content.ActivityNotFoundException e) {
