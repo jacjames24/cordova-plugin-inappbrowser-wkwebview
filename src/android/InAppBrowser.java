@@ -61,6 +61,7 @@ import org.apache.cordova.Config;
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaHttpAuthHandler;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.CordovaPreferences;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
 import org.apache.cordova.PluginManager;
@@ -181,7 +182,7 @@ public class InAppBrowser extends CordovaPlugin {
                         }
                         if (shouldAllowNavigation == null) {
                             try {
-                                Method iuw = Config.class.getMethod("isUrlWhiteListed", String.class);
+                                Method iuw = CordovaPreferences.class.getMethod("isUrlWhiteListed", String.class);
                                 shouldAllowNavigation = (Boolean) iuw.invoke(null, url);
                             } catch (NoSuchMethodException e) {
                                 LOG.d(LOG_TAG, e.getLocalizedMessage());
