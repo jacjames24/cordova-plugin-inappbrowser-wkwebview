@@ -431,7 +431,7 @@ public class InAppBrowser extends CordovaPlugin {
      */
     public String openExternal(String url) {
         try {
-            Intent intent = null;
+            Intent intent;
             intent = new Intent(Intent.ACTION_VIEW);
             // Omitting the MIME type for file: URLs causes "No Activity found to handle
             // Intent".
@@ -535,7 +535,9 @@ public class InAppBrowser extends CordovaPlugin {
     private void navigate(String url) {
         InputMethodManager imm = (InputMethodManager) this.cordova.getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(edittext.getWindowToken(), 0);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(edittext.getWindowToken(), 0);
+        }
 
         if (!url.startsWith("http") && !url.startsWith("file:")) {
             this.inAppWebView.loadUrl("http://" + url);
@@ -591,12 +593,12 @@ public class InAppBrowser extends CordovaPlugin {
                 View _close;
                 Resources activityRes = cordova.getActivity().getResources();
 
-                if (closeButtonCaption != "") {
+                if (!closeButtonCaption.equals("")) {
                     // Use TextView for text
                     TextView close = new TextView(cordova.getActivity());
                     close.setText(closeButtonCaption);
                     close.setTextSize(20);
-                    if (closeButtonColor != "")
+                    if (!closeButtonColor.equals(""))
                         close.setTextColor(android.graphics.Color.parseColor(closeButtonColor));
                     close.setGravity(android.view.Gravity.CENTER_VERTICAL);
                     close.setPadding(this.dpToPixels(10), 0, this.dpToPixels(10), 0);
@@ -606,7 +608,7 @@ public class InAppBrowser extends CordovaPlugin {
                     int closeResId = activityRes.getIdentifier("ic_action_remove", "drawable",
                             cordova.getActivity().getPackageName());
                     Drawable closeIcon = activityRes.getDrawable(closeResId);
-                    if (closeButtonColor != "")
+                    if (!closeButtonColor.equals(""))
                         close.setColorFilter(android.graphics.Color.parseColor(closeButtonColor));
                     close.setImageDrawable(closeIcon);
                     close.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -639,7 +641,11 @@ public class InAppBrowser extends CordovaPlugin {
 
                 // Let's create the main dialog
                 dialog = new InAppBrowserDialog(cordova.getActivity(), android.R.style.Theme_NoTitleBar);
-                dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
+
+                if (dialog.getWindow() != null) {
+                    dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
+                }
+
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.setCancelable(true);
                 dialog.setInAppBroswer(getInAppBrowser());
@@ -664,7 +670,7 @@ public class InAppBrowser extends CordovaPlugin {
                         new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
                 actionButtonContainer.setHorizontalGravity(Gravity.START);
                 actionButtonContainer.setVerticalGravity(Gravity.CENTER_VERTICAL);
-                actionButtonContainer.setId(1);
+                actionButtonContainer.setId(View.generateViewId());
 
                 // Back button
                 ImageButton back = new ImageButton(cordova.getActivity());
@@ -673,12 +679,12 @@ public class InAppBrowser extends CordovaPlugin {
                 backLayoutParams.addRule(RelativeLayout.ALIGN_LEFT);
                 back.setLayoutParams(backLayoutParams);
                 back.setContentDescription("Back Button");
-                back.setId(2);
+                back.setId(View.generateViewId());
                 Resources activityRes = cordova.getActivity().getResources();
                 int backResId = activityRes.getIdentifier("ic_action_previous_item", "drawable",
                         cordova.getActivity().getPackageName());
                 Drawable backIcon = activityRes.getDrawable(backResId);
-                if (navigationButtonColor != "")
+                if (!navigationButtonColor.equals(""))
                     back.setColorFilter(android.graphics.Color.parseColor(navigationButtonColor));
                 back.setBackground(null);
                 back.setImageDrawable(backIcon);
@@ -696,11 +702,11 @@ public class InAppBrowser extends CordovaPlugin {
                 forwardLayoutParams.addRule(RelativeLayout.RIGHT_OF, 2);
                 forward.setLayoutParams(forwardLayoutParams);
                 forward.setContentDescription("Forward Button");
-                forward.setId(3);
+                forward.setId(View.generateViewId());
                 int fwdResId = activityRes.getIdentifier("ic_action_next_item", "drawable",
                         cordova.getActivity().getPackageName());
                 Drawable fwdIcon = activityRes.getDrawable(fwdResId);
-                if (navigationButtonColor != "")
+                if (!navigationButtonColor.equals(""))
                     forward.setColorFilter(android.graphics.Color.parseColor(navigationButtonColor));
                 forward.setBackground(null);
                 forward.setImageDrawable(fwdIcon);
@@ -718,7 +724,7 @@ public class InAppBrowser extends CordovaPlugin {
                 textLayoutParams.addRule(RelativeLayout.RIGHT_OF, 1);
                 textLayoutParams.addRule(RelativeLayout.LEFT_OF, 5);
                 edittext.setLayoutParams(textLayoutParams);
-                edittext.setId(4);
+                edittext.setId(View.generateViewId());
                 edittext.setSingleLine(true);
                 edittext.setText(url);
                 edittext.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
@@ -740,7 +746,7 @@ public class InAppBrowser extends CordovaPlugin {
                 // Footer
                 RelativeLayout footer = new RelativeLayout(cordova.getActivity());
                 int _footerColor;
-                if (footerColor != "") {
+                if (!footerColor.equals("")) {
                     _footerColor = Color.parseColor(footerColor);
                 } else {
                     _footerColor = android.graphics.Color.LTGRAY;
@@ -750,7 +756,7 @@ public class InAppBrowser extends CordovaPlugin {
                         this.dpToPixels(44));
                 footerLayout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
                 footer.setLayoutParams(footerLayout);
-                if (closeButtonCaption != "")
+                if (!closeButtonCaption.equals(""))
                     footer.setPadding(this.dpToPixels(8), this.dpToPixels(8), this.dpToPixels(8), this.dpToPixels(8));
                 footer.setHorizontalGravity(Gravity.START);
                 footer.setVerticalGravity(Gravity.BOTTOM);
@@ -762,7 +768,7 @@ public class InAppBrowser extends CordovaPlugin {
                 inAppWebView = new WebView(cordova.getActivity());
                 inAppWebView.setLayoutParams(
                         new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-                inAppWebView.setId(6);
+                inAppWebView.setId(View.generateViewId());
                 // File Chooser Implemented ChromeClient
                 inAppWebView.setWebChromeClient(new InAppChromeClient(thatWebView) {
                     // For Android 5.0+
@@ -784,13 +790,6 @@ public class InAppBrowser extends CordovaPlugin {
                         cordova.startActivityForResult(InAppBrowser.this, Intent.createChooser(content, "Select File"),
                                 FILECHOOSER_REQUESTCODE_LOLLIPOP);
                         return true;
-                    }
-
-                    // For Android 4.1+
-                    public void openFileChooser(ValueCallback<Uri> uploadMsg) {
-                        LOG.d(LOG_TAG, "File Chooser 4.1+");
-                        // Call file chooser for Android 3.0+
-                        openFileChooser(uploadMsg);
                     }
                 });
 
@@ -816,7 +815,7 @@ public class InAppBrowser extends CordovaPlugin {
                 }
 
                 inAppWebView.loadUrl(url);
-                inAppWebView.setId(6);
+                inAppWebView.setId(View.generateViewId());
                 inAppWebView.getSettings().setLoadWithOverviewMode(true);
                 inAppWebView.getSettings().setUseWideViewPort(useWideViewPort);
                 inAppWebView.requestFocus();
@@ -857,7 +856,11 @@ public class InAppBrowser extends CordovaPlugin {
 
     private void showWebViewDialog(LinearLayout main) {
         LayoutParams lp = new LayoutParams();
-        lp.copyFrom(dialog.getWindow().getAttributes());
+
+        if (dialog.getWindow() != null) {
+            lp.copyFrom(dialog.getWindow().getAttributes());
+        }
+
         lp.width = LayoutParams.MATCH_PARENT;
         lp.height = LayoutParams.WRAP_CONTENT;
 
@@ -1021,8 +1024,6 @@ public class InAppBrowser extends CordovaPlugin {
                 return;
             }
 
-            if (null == mUploadCallback)
-                return;
             Uri result = intent == null || resultCode != Activity.RESULT_OK ? null : intent.getData();
 
             mUploadCallback.onReceiveValue(result);
@@ -1070,7 +1071,7 @@ public class InAppBrowser extends CordovaPlugin {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
 
                     // Get address
-                    String address = null;
+                    String address;
                     int parmIndex = url.indexOf('?');
                     if (parmIndex == -1) {
                         address = url.substring(4);
@@ -1157,7 +1158,7 @@ public class InAppBrowser extends CordovaPlugin {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
-            String newloc = "";
+            String newloc;
             if (url.startsWith("http:") || url.startsWith("https:") || url.startsWith("file:")) {
                 newloc = url;
             } else {
