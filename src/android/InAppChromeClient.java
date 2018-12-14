@@ -26,15 +26,13 @@ import org.json.JSONException;
 
 import android.webkit.JsPromptResult;
 import android.webkit.WebChromeClient;
-import android.webkit.WebStorage;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.webkit.GeolocationPermissions.Callback;
 
 class InAppChromeClient extends WebChromeClient {
 
-    private CordovaWebView webView;
-    private String LOG_TAG = "InAppChromeClient";
+    private final CordovaWebView webView;
+    private final String LOG_TAG = "InAppChromeClient";
 
     public InAppChromeClient(CordovaWebView webView) {
         super();
