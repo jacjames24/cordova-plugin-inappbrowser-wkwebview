@@ -40,24 +40,6 @@ public class InAppChromeClient extends WebChromeClient {
         super();
         this.webView = webView;
     }
-    /**
-     * Handle database quota exceeded notification.
-     *
-     * @param url
-     * @param databaseIdentifier
-     * @param currentQuota
-     * @param estimatedSize
-     * @param totalUsedQuota
-     * @param quotaUpdater
-     */
-    @Override
-    public void onExceededDatabaseQuota(String url, String databaseIdentifier, long currentQuota, long estimatedSize,
-            long totalUsedQuota, WebStorage.QuotaUpdater quotaUpdater)
-    {
-        LOG.d(LOG_TAG, "onExceededDatabaseQuota estimatedSize: %d  currentQuota: %d  totalUsedQuota: %d", estimatedSize, currentQuota, totalUsedQuota);
-        long MAX_QUOTA = 100 * 1024 * 1024;
-        quotaUpdater.updateQuota(MAX_QUOTA);
-    }
 
     /**
      * Instructs the client to show a prompt to ask the user to set the Geolocation permission state for the specified origin.
