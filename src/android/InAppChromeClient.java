@@ -39,44 +39,12 @@ class InAppChromeClient extends WebChromeClient {
         this.webView = webView;
     }
 
-    /**
-     * Instructs the client to show a prompt to ask the user to set the Geolocation permission state for the specified origin.
-     *
-     * @param origin
-     * @param callback
-     */
     @Override
     public void onGeolocationPermissionsShowPrompt(String origin, Callback callback) {
         super.onGeolocationPermissionsShowPrompt(origin, callback);
         callback.invoke(origin, true, false);
     }
 
-    /**
-     * Tell the client to display a prompt dialog to the user.
-     * If the client returns true, WebView will assume that the client will
-     * handle the prompt dialog and call the appropriate JsPromptResult method.
-     *
-     * The prompt bridge provided for the InAppBrowser is capable of executing any
-     * oustanding callback belonging to the InAppBrowser plugin. Care has been
-     * taken that other callbacks cannot be triggered, and that no other code
-     * execution is possible.
-     *
-     * To trigger the bridge, the prompt default value should be of the form:
-     *
-     * gap-iab://<callbackId>
-     *
-     * where <callbackId> is the string id of the callback to trigger (something
-     * like "InAppBrowser0123456789")
-     *
-     * If present, the prompt message is expected to be a JSON-encoded value to
-     * pass to the callback. A JSON_EXCEPTION is returned if the JSON is invalid.
-     *
-     * @param view
-     * @param url
-     * @param message
-     * @param defaultValue
-     * @param result
-     */
     @Override
     public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
         // See if the prompt string uses the 'gap-iab' protocol. If so, the remainder should be the id of a callback to execute.

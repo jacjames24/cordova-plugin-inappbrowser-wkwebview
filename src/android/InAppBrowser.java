@@ -401,12 +401,6 @@ public class InAppBrowser extends CordovaPlugin {
         }
     }
 
-    /**
-     * Put the list of features into a hash map
-     *
-     * @param optString
-     * @return
-     */
     private HashMap<String, String> parseFeature(String optString) {
         if (optString.equals(NULL)) {
             return null;
@@ -1043,25 +1037,11 @@ public class InAppBrowser extends CordovaPlugin {
         final EditText edittext;
         final CordovaWebView webView;
 
-        /**
-         * Constructor.
-         *
-         * @param webView
-         * @param mEditText
-         */
         public InAppBrowserClient(CordovaWebView webView, EditText mEditText) {
             this.webView = webView;
             this.edittext = mEditText;
         }
 
-        /**
-         * Override the URL that should be loaded
-         *
-         * This handles a small subset of all the URIs that would be encountered.
-         *
-         * @param webView
-         * @param url
-         */
         @Override
         public boolean shouldOverrideUrlLoading(WebView webView, String url) {
             if (url.startsWith(WebView.SCHEME_TEL)) {
