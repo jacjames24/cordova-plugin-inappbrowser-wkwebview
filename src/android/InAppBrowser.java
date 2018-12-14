@@ -19,6 +19,7 @@
 package org.apache.cordova.inappbrowser;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Browser;
@@ -1073,7 +1074,7 @@ public class InAppBrowser extends CordovaPlugin {
 
             if (null == mUploadCallback)
                 return;
-            Uri result = intent == null || resultCode != cordova.getActivity().RESULT_OK ? null : intent.getData();
+            Uri result = intent == null || resultCode != Activity.RESULT_OK ? null : intent.getData();
 
             mUploadCallback.onReceiveValue(result);
             mUploadCallback = null;
