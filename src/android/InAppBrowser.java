@@ -854,9 +854,6 @@ public class InAppBrowser extends CordovaPlugin {
                 boolean enableDatabase = appSettings == null ? true
                         : appSettings.getBoolean("InAppBrowserStorageEnabled", true);
                 if (enableDatabase) {
-                    String databasePath = cordova.getActivity().getApplicationContext()
-                            .getDir("inAppBrowserDB", Context.MODE_PRIVATE).getPath();
-                    settings.setDatabasePath(databasePath);
                     settings.setDatabaseEnabled(true);
                 }
                 settings.setDomStorageEnabled(true);
@@ -936,7 +933,6 @@ public class InAppBrowser extends CordovaPlugin {
         settings.setJavaScriptEnabled(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setBuiltInZoomControls(showZoomControls);
-        settings.setPluginState(WebSettings.PluginState.ON);
         settings.setMediaPlaybackRequiresUserGesture(mediaPlaybackRequiresUserGesture);
 
         String overrideUserAgent = preferences.getString("OverrideUserAgent", null);
