@@ -180,14 +180,6 @@ public class InAppBrowser extends CordovaPlugin {
                         }
                         if (shouldAllowNavigation == null) {
                             try {
-                                Method iuw = CordovaPreferences.class.getMethod("isUrlWhiteListed", String.class);
-                                shouldAllowNavigation = (Boolean) iuw.invoke(null, url);
-                            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                                LOG.d(LOG_TAG, e.getLocalizedMessage());
-                            }
-                        }
-                        if (shouldAllowNavigation == null) {
-                            try {
                                 Method gpm = webView.getClass().getMethod("getPluginManager");
                                 PluginManager pm = (PluginManager) gpm.invoke(webView);
                                 Method san = pm.getClass().getMethod("shouldAllowNavigation", String.class);
