@@ -665,7 +665,6 @@ public class InAppBrowser extends CordovaPlugin {
                 if (dialog != null) {
                     dialog.dismiss();
                 }
-                ;
 
                 // Let's create the main dialog
                 dialog = new InAppBrowserDialog(cordova.getActivity(), android.R.style.Theme_NoTitleBar);
@@ -851,8 +850,7 @@ public class InAppBrowser extends CordovaPlugin {
 
                 // Toggle whether this is enabled or not!
                 Bundle appSettings = cordova.getActivity().getIntent().getExtras();
-                boolean enableDatabase = appSettings == null ? true
-                        : appSettings.getBoolean("InAppBrowserStorageEnabled", true);
+                boolean enableDatabase = appSettings == null || appSettings.getBoolean("InAppBrowserStorageEnabled", true);
                 if (enableDatabase) {
                     settings.setDatabaseEnabled(true);
                 }
@@ -951,7 +949,7 @@ public class InAppBrowser extends CordovaPlugin {
         if (features != null) {
             String show = features.get(LOCATION);
             if (show != null) {
-                showLocationBar = show.equals("yes") ? true : false;
+                showLocationBar = show.equals("yes");
             }
             if (showLocationBar) {
                 String hideNavigation = features.get(HIDE_NAVIGATION);
