@@ -38,7 +38,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -58,7 +57,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.Config;
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaHttpAuthHandler;
 import org.apache.cordova.CordovaPlugin;
@@ -82,7 +80,7 @@ import java.util.StringTokenizer;
 public class InAppBrowser extends CordovaPlugin {
 
     private static final String NULL = "null";
-    protected static final String LOG_TAG = "InAppBrowser";
+    private static final String LOG_TAG = "InAppBrowser";
     private static final String SELF = "_self";
     private static final String SYSTEM = "_system";
     private static final String EXIT_EVENT = "exit";
@@ -825,24 +823,11 @@ public class InAppBrowser extends CordovaPlugin {
                     }
 
                     // For Android 4.1+
-                    public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture) {
+                    public void openFileChooser(ValueCallback<Uri> uploadMsg) {
                         LOG.d(LOG_TAG, "File Chooser 4.1+");
                         // Call file chooser for Android 3.0+
-                        openFileChooser(uploadMsg, acceptType);
+                        openFileChooser(uploadMsg);
                     }
-
-                    // For Android 3.0+
-                    public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType) {
-                        LOG.d(LOG_TAG, "File Chooser 3.0+");
-                        mUploadCallback = uploadMsg;
-                        Intent content = new Intent(Intent.ACTION_GET_CONTENT);
-                        content.addCategory(Intent.CATEGORY_OPENABLE);
-
-                        // run startActivityForResult
-                        cordova.startActivityForResult(InAppBrowser.this, Intent.createChooser(content, "Select File"),
-                                FILECHOOSER_REQUESTCODE);
-                    }
-
                 });
 
                 WebSettings settings = createWebViewClientSettings(thatWebView);

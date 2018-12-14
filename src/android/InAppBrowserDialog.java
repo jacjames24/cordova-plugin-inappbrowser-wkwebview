@@ -24,13 +24,11 @@ import android.content.Context;
 /**
  * Created by Oliver on 22/11/2013.
  */
-public class InAppBrowserDialog extends Dialog {
-    Context context;
+class InAppBrowserDialog extends Dialog {
     InAppBrowser inAppBrowser = null;
 
     public InAppBrowserDialog(Context context, int theme) {
         super(context, theme);
-        this.context = context;
     }
 
     public void setInAppBroswer(InAppBrowser browser) {
