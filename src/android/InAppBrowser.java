@@ -150,21 +150,20 @@ public class InAppBrowser extends CordovaPlugin {
      */
     public boolean execute(String action, CordovaArgs args, final CallbackContext callbackContext)
             throws JSONException {
-        if (action.equals("open")) {
-            this.callbackContext = callbackContext;
-            final String url = args.getString(0);
-            String t = args.optString(1);
-            if (t == null || t.equals("") || t.equals(NULL)) {
-                t = SELF;
-            }
-            final String target = t;
-            final HashMap<String, String> features = parseFeature(args.optString(2));
+        switch (action) {
+            case "open":
+                this.callbackContext = callbackContext;
+                final String url = args.getString(0);
+                String t = args.optString(1);
+                if (t == null || t.equals("") || t.equals(NULL)) {
+                    t = SELF;
+                }
+                final String target = t;
+                final HashMap<String, String> features = parseFeature(args.optString(2));
 
-            LOG.d(LOG_TAG, "target = " + target);
+                LOG.d(LOG_TAG, "target = " + target);
 
-            this.cordova.getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
+                this.cordova.getActivity().runOnUiThread(() -> {
                     String result = "";
                     // SELF
                     if (SELF.equals(target)) {
@@ -183,11 +182,7 @@ public class InAppBrowser extends CordovaPlugin {
                             try {
                                 Method iuw = CordovaPreferences.class.getMethod("isUrlWhiteListed", String.class);
                                 shouldAllowNavigation = (Boolean) iuw.invoke(null, url);
-                            } catch (NoSuchMethodException e) {
-                                LOG.d(LOG_TAG, e.getLocalizedMessage());
-                            } catch (IllegalAccessException e) {
-                                LOG.d(LOG_TAG, e.getLocalizedMessage());
-                            } catch (InvocationTargetException e) {
+                            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                                 LOG.d(LOG_TAG, e.getLocalizedMessage());
                             }
                         }
@@ -197,11 +192,7 @@ public class InAppBrowser extends CordovaPlugin {
                                 PluginManager pm = (PluginManager) gpm.invoke(webView);
                                 Method san = pm.getClass().getMethod("shouldAllowNavigation", String.class);
                                 shouldAllowNavigation = (Boolean) san.invoke(pm, url);
-                            } catch (NoSuchMethodException e) {
-                                LOG.d(LOG_TAG, e.getLocalizedMessage());
-                            } catch (IllegalAccessException e) {
-                                LOG.d(LOG_TAG, e.getLocalizedMessage());
-                            } catch (InvocationTargetException e) {
+                            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                                 LOG.d(LOG_TAG, e.getLocalizedMessage());
                             }
                         }
@@ -241,75 +232,76 @@ public class InAppBrowser extends CordovaPlugin {
                     PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, result);
                     pluginResult.setKeepCallback(true);
                     callbackContext.sendPluginResult(pluginResult);
+                });
+                break;
+            case "close":
+                closeDialog();
+                break;
+            case "injectScriptCode": {
+                String jsWrapper = null;
+                if (args.getBoolean(1)) {
+                    jsWrapper = String.format("(function(){prompt(JSON.stringify([eval(%%s)]), 'gap-iab://%s')})()",
+                            callbackContext.getCallbackId());
                 }
-            });
-        } else if (action.equals("close")) {
-            closeDialog();
-        } else if (action.equals("injectScriptCode")) {
-            String jsWrapper = null;
-            if (args.getBoolean(1)) {
-                jsWrapper = String.format("(function(){prompt(JSON.stringify([eval(%%s)]), 'gap-iab://%s')})()",
-                        callbackContext.getCallbackId());
+                injectDeferredObject(args.getString(0), jsWrapper);
+                break;
             }
-            injectDeferredObject(args.getString(0), jsWrapper);
-        } else if (action.equals("injectScriptFile")) {
-            String jsWrapper;
-            if (args.getBoolean(1)) {
-                jsWrapper = String.format(
-                        "(function(d) { var c = d.createElement('script'); c.src = %%s; c.onload = function() { prompt('', 'gap-iab://%s'); }; if (d.body) { d.body.appendChild(c); } })(document)",
-                        callbackContext.getCallbackId());
-            } else {
-                jsWrapper = "(function(d) { var c = d.createElement('script'); c.src = %s; if (d.body) { d.body.appendChild(c); } })(document)";
-            }
-            injectDeferredObject(args.getString(0), jsWrapper);
-        } else if (action.equals("injectStyleCode")) {
-            String jsWrapper;
-            if (args.getBoolean(1)) {
-                jsWrapper = String.format(
-                        "(function(d) { var c = d.createElement('style'); c.innerHTML = %%s; if (d.body) { d.body.appendChild(c); } prompt('', 'gap-iab://%s');})(document)",
-                        callbackContext.getCallbackId());
-            } else {
-                jsWrapper = "(function(d) { var c = d.createElement('style'); c.innerHTML = %s; if (d.body) { d.body.appendChild(c); } })(document)";
-            }
-            injectDeferredObject(args.getString(0), jsWrapper);
-        } else if (action.equals("injectStyleFile")) {
-            String jsWrapper;
-            if (args.getBoolean(1)) {
-                jsWrapper = String.format(
-                        "(function(d) { var c = d.createElement('link'); c.rel='stylesheet'; c.type='text/css'; c.href = %%s; if (d.head) { d.head.appendChild(c); } prompt('', 'gap-iab://%s');})(document)",
-                        callbackContext.getCallbackId());
-            } else {
-                jsWrapper = "(function(d) { var c = d.createElement('link'); c.rel='stylesheet'; c.type='text/css'; c.href = %s; if (d.head) { d.head.appendChild(c); } })(document)";
-            }
-            injectDeferredObject(args.getString(0), jsWrapper);
-        } else if (action.equals("show")) {
-            this.cordova.getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    dialog.show();
+            case "injectScriptFile": {
+                String jsWrapper;
+                if (args.getBoolean(1)) {
+                    jsWrapper = String.format(
+                            "(function(d) { var c = d.createElement('script'); c.src = %%s; c.onload = function() { prompt('', 'gap-iab://%s'); }; if (d.body) { d.body.appendChild(c); } })(document)",
+                            callbackContext.getCallbackId());
+                } else {
+                    jsWrapper = "(function(d) { var c = d.createElement('script'); c.src = %s; if (d.body) { d.body.appendChild(c); } })(document)";
                 }
-            });
-            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-            pluginResult.setKeepCallback(true);
-            this.callbackContext.sendPluginResult(pluginResult);
-        } else if (action.equals("hide")) {
-            this.cordova.getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    dialog.hide();
+                injectDeferredObject(args.getString(0), jsWrapper);
+                break;
+            }
+            case "injectStyleCode": {
+                String jsWrapper;
+                if (args.getBoolean(1)) {
+                    jsWrapper = String.format(
+                            "(function(d) { var c = d.createElement('style'); c.innerHTML = %%s; if (d.body) { d.body.appendChild(c); } prompt('', 'gap-iab://%s');})(document)",
+                            callbackContext.getCallbackId());
+                } else {
+                    jsWrapper = "(function(d) { var c = d.createElement('style'); c.innerHTML = %s; if (d.body) { d.body.appendChild(c); } })(document)";
                 }
-            });
-            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-            pluginResult.setKeepCallback(true);
-            this.callbackContext.sendPluginResult(pluginResult);
-        } else if (action.equals("changeToolBar")) {
-            Log.d(LOG_TAG, "received the command for the changing the tool bar");
-            String hexColor = args.getString(0);
-            String style = args.getString(1);
+                injectDeferredObject(args.getString(0), jsWrapper);
+                break;
+            }
+            case "injectStyleFile": {
+                String jsWrapper;
+                if (args.getBoolean(1)) {
+                    jsWrapper = String.format(
+                            "(function(d) { var c = d.createElement('link'); c.rel='stylesheet'; c.type='text/css'; c.href = %%s; if (d.head) { d.head.appendChild(c); } prompt('', 'gap-iab://%s');})(document)",
+                            callbackContext.getCallbackId());
+                } else {
+                    jsWrapper = "(function(d) { var c = d.createElement('link'); c.rel='stylesheet'; c.type='text/css'; c.href = %s; if (d.head) { d.head.appendChild(c); } })(document)";
+                }
+                injectDeferredObject(args.getString(0), jsWrapper);
+                break;
+            }
+            case "show": {
+                this.cordova.getActivity().runOnUiThread(() -> dialog.show());
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+                pluginResult.setKeepCallback(true);
+                this.callbackContext.sendPluginResult(pluginResult);
+                break;
+            }
+            case "hide": {
+                this.cordova.getActivity().runOnUiThread(() -> dialog.hide());
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+                pluginResult.setKeepCallback(true);
+                this.callbackContext.sendPluginResult(pluginResult);
+                break;
+            }
+            case "changeToolBar": {
+                Log.d(LOG_TAG, "received the command for the changing the tool bar");
+                String hexColor = args.getString(0);
+                String style = args.getString(1);
 
-            this.cordova.getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
+                this.cordova.getActivity().runOnUiThread(() -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         Window window = cordova.getActivity().getWindow();
                         window.clearFlags(LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -325,14 +317,15 @@ public class InAppBrowser extends CordovaPlugin {
 
                         Log.d(LOG_TAG, "after the command of changing the color of the tool bar");
                     }
-                }
-            });
+                });
 
-            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
-            pluginResult.setKeepCallback(true);
-            this.callbackContext.sendPluginResult(pluginResult);
-        } else {
-            return false;
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
+                pluginResult.setKeepCallback(true);
+                this.callbackContext.sendPluginResult(pluginResult);
+                break;
+            }
+            default:
+                return false;
         }
         return true;
     }
@@ -402,13 +395,7 @@ public class InAppBrowser extends CordovaPlugin {
                 scriptToInject = source;
             }
             final String finalScriptToInject = scriptToInject;
-            this.cordova.getActivity().runOnUiThread(new Runnable() {
-                @SuppressLint("NewApi")
-                @Override
-                public void run() {
-                    inAppWebView.evaluateJavascript(finalScriptToInject, null);
-                }
-            });
+            this.cordova.getActivity().runOnUiThread(() -> inAppWebView.evaluateJavascript(finalScriptToInject, null));
         } else {
             LOG.d(LOG_TAG, "Can't inject code into the system browser");
         }
@@ -424,7 +411,7 @@ public class InAppBrowser extends CordovaPlugin {
         if (optString.equals(NULL)) {
             return null;
         } else {
-            HashMap<String, String> map = new HashMap<String, String>();
+            HashMap<String, String> map = new HashMap<>();
             StringTokenizer features = new StringTokenizer(optString, ",");
             StringTokenizer option;
             while (features.hasMoreElements()) {
@@ -477,37 +464,34 @@ public class InAppBrowser extends CordovaPlugin {
      * Closes the dialog
      */
     public void closeDialog() {
-        this.cordova.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final WebView childView = inAppWebView;
-                // The JS protects against multiple calls, so this should happen only when
-                // closeDialog() is called by other native code.
-                if (childView == null) {
-                    return;
-                }
+        this.cordova.getActivity().runOnUiThread(() -> {
+            final WebView childView = inAppWebView;
+            // The JS protects against multiple calls, so this should happen only when
+            // closeDialog() is called by other native code.
+            if (childView == null) {
+                return;
+            }
 
-                childView.setWebViewClient(new WebViewClient() {
-                    // NB: wait for about:blank before dismissing
-                    public void onPageFinished(WebView view, String url) {
-                        if (dialog != null) {
-                            dialog.dismiss();
-                            dialog = null;
-                        }
+            childView.setWebViewClient(new WebViewClient() {
+                // NB: wait for about:blank before dismissing
+                public void onPageFinished(WebView view, String url) {
+                    if (dialog != null) {
+                        dialog.dismiss();
+                        dialog = null;
                     }
-                });
-                // NB: From SDK 19: "If you call methods on WebView from any thread
-                // other than your app's UI thread, it can cause unexpected results."
-                // http://developer.android.com/guide/webapps/migrating.html#Threads
-                childView.loadUrl("about:blank");
-
-                try {
-                    JSONObject obj = new JSONObject();
-                    obj.put("type", EXIT_EVENT);
-                    sendUpdate(obj, false);
-                } catch (JSONException ex) {
-                    LOG.d(LOG_TAG, "Should never happen");
                 }
+            });
+            // NB: From SDK 19: "If you call methods on WebView from any thread
+            // other than your app's UI thread, it can cause unexpected results."
+            // http://developer.android.com/guide/webapps/migrating.html#Threads
+            childView.loadUrl("about:blank");
+
+            try {
+                JSONObject obj = new JSONObject();
+                obj.put("type", EXIT_EVENT);
+                sendUpdate(obj, false);
+            } catch (JSONException ex) {
+                LOG.d(LOG_TAG, "Should never happen");
             }
         });
     }
@@ -646,11 +630,7 @@ public class InAppBrowser extends CordovaPlugin {
                 _close.setBackground(null);
                 _close.setContentDescription("Close Button");
                 _close.setId(id);
-                _close.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        closeDialog();
-                    }
-                });
+                _close.setOnClickListener(v -> closeDialog());
 
                 return _close;
             }
@@ -713,11 +693,7 @@ public class InAppBrowser extends CordovaPlugin {
                 back.getAdjustViewBounds();
 
 
-                back.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        goBack();
-                    }
-                });
+                back.setOnClickListener(v -> goBack());
 
                 // Forward button
                 ImageButton forward = new ImageButton(cordova.getActivity());
@@ -739,11 +715,7 @@ public class InAppBrowser extends CordovaPlugin {
                 forward.getAdjustViewBounds();
 
 
-                forward.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        goForward();
-                    }
-                });
+                forward.setOnClickListener(v -> goForward());
 
                 // Edit Text Box
                 edittext = new EditText(cordova.getActivity());
@@ -758,15 +730,13 @@ public class InAppBrowser extends CordovaPlugin {
                 edittext.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
                 edittext.setImeOptions(EditorInfo.IME_ACTION_GO);
                 edittext.setInputType(InputType.TYPE_NULL); // Will not except input... Makes the text NON-EDITABLE
-                edittext.setOnKeyListener(new View.OnKeyListener() {
-                    public boolean onKey(View v, int keyCode, KeyEvent event) {
-                        // If the event is a key-down event on the "enter" button
-                        if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                            navigate(edittext.getText().toString());
-                            return true;
-                        }
-                        return false;
+                edittext.setOnKeyListener((v, keyCode, event) -> {
+                    // If the event is a key-down event on the "enter" button
+                    if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                        navigate(edittext.getText().toString());
+                        return true;
                     }
+                    return false;
                 });
 
                 // Header Close/Done button
@@ -1295,11 +1265,7 @@ public class InAppBrowser extends CordovaPlugin {
             try {
                 Method gpm = webView.getClass().getMethod("getPluginManager");
                 pluginManager = (PluginManager) gpm.invoke(webView);
-            } catch (NoSuchMethodException e) {
-                LOG.d(LOG_TAG, e.getLocalizedMessage());
-            } catch (IllegalAccessException e) {
-                LOG.d(LOG_TAG, e.getLocalizedMessage());
-            } catch (InvocationTargetException e) {
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 LOG.d(LOG_TAG, e.getLocalizedMessage());
             }
 
@@ -1307,9 +1273,7 @@ public class InAppBrowser extends CordovaPlugin {
                 try {
                     Field pmf = webView.getClass().getField("pluginManager");
                     pluginManager = (PluginManager) pmf.get(webView);
-                } catch (NoSuchFieldException e) {
-                    LOG.d(LOG_TAG, e.getLocalizedMessage());
-                } catch (IllegalAccessException e) {
+                } catch (NoSuchFieldException | IllegalAccessException e) {
                     LOG.d(LOG_TAG, e.getLocalizedMessage());
                 }
             }
